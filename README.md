@@ -24,25 +24,25 @@ Setup
 
 1.  **Clone the Repository**:
 
-    bash
+    
 
-    Copy code
+    
 
     `git clone https://github.com/deuber/smartcar-integration.git`
 
 2.  **Navigate to the Project Directory**:
 
-    bash
+    
 
-    Copy code
+    
 
     `cd smartcar-integration`
 
 3.  **Install Dependencies**:
 
-    bash
+    
 
-    Copy code
+    
 
     `npm install`
 
@@ -52,7 +52,7 @@ Setup
 
     env
 
-    Copy code
+    
 
     `SMARTCAR_CLIENT_ID=your_client_id
     SMARTCAR_CLIENT_SECRET=your_client_secret
@@ -65,9 +65,9 @@ Running the Application
 
 1.  **Start the Server**:
 
-    bash
+    
 
-    Copy code
+    
 
     `node index.js`
 
@@ -90,7 +90,7 @@ Project Structure
 
 plaintext
 
-Copy code
+
 
 `smartcar-integration/
 ├── index.js       # Main application file
