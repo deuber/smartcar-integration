@@ -28,10 +28,10 @@
     console.log('Vehicles Data:', <%- JSON.stringify(vehicles) %>);
 
     function initMap() {
-      // Initialize the map centered on the USA
+      // Initialize the map without a specific center
       const map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 4,
-        center: { lat: 39.8283, lng: -98.5795 } // Center of the USA
+        zoom: 4, // Initial zoom, will be adjusted later
+        center: { lat: 39.8283, lng: -98.5795 } // Temporary center
       });
 
       const vehicles = <%- JSON.stringify(vehicles) %>;
@@ -48,6 +48,9 @@
         return;
       }
 
+      // Initialize bounds
+      const bounds = new google.maps.LatLngBounds();
+
       vehicles.forEach(vehicle => {
         if (vehicle.latitude != null && vehicle.longitude != null) {
           // Define different colors or icons based on brand
@@ -60,8 +63,10 @@
             iconUrl = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
           }
 
+          const position = { lat: vehicle.latitude, lng: vehicle.longitude };
+
           const marker = new google.maps.Marker({
-            position: { lat: vehicle.latitude, lng: vehicle.longitude },
+            position: position,
             map: map,
             title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
             icon: iconUrl // Set the icon based on brand
@@ -74,10 +79,22 @@
           marker.addListener('click', () => {
             infoWindow.open(map, marker);
           });
+
+          // Extend the bounds to include this marker's position
+          bounds.extend(position);
         } else {
           console.warn(`Invalid location for vehicle: ${vehicle.year} ${vehicle.make} ${vehicle.model}`);
         }
       });
+
+      // Adjust the map to fit all markers
+      if (vehicles.length === 1) {
+        // If there's only one vehicle, set a default zoom level
+        map.setCenter(bounds.getCenter());
+        map.setZoom(12); // Adjust zoom level as needed
+      } else {
+        map.fitBounds(bounds);
+      }
     }
 
     // Handle Google Maps API loading errors
