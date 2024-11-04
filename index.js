@@ -6,9 +6,8 @@ const path = require('path');
 const app = express();
 const port = 8000;
 
-// Set EJS as the templating engine
+// Set the view engine to EJS
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
 
 // Define the path to the tokens file
 const tokensFilePath = path.join(__dirname, 'tokens.json');
@@ -47,7 +46,7 @@ function writeTokens(tokens) {
 
 // Route to start the authorization flow
 app.get('/login', (req, res) => {
-  const authUrl = client.getAuthUrl(['read_vehicle_info']);
+  const authUrl = client.getAuthUrl(['read_vehicle_info', 'read_odometer']);
   res.redirect(authUrl);
 });
 
@@ -76,7 +75,7 @@ app.get('/callback', async (req, res) => {
 app.use(async (req, res, next) => {
   let tokens = readTokens();
   if (!tokens) {
-    return res.status(401).send('No tokens found. Please authorize the application.');
+    return res.status(401).send('No tokens found. Please authorize the application by visiting <a href="/login">/login</a>.');
   }
   if (Date.now() >= tokens.expiration) {
     try {
@@ -104,7 +103,14 @@ app.get('/vehicles', async (req, res) => {
     const vehicleDetails = await Promise.all(
       vehicles.map(async (id) => {
         const vehicle = new smartcar.Vehicle(id, req.accessToken);
-        return await vehicle.attributes(); // Correct method to fetch vehicle attributes
+        const attributes = await vehicle.attributes();
+        const odometer = await vehicle.odometer();
+        return {
+          make: attributes.make,
+          model: attributes.model,
+          year: attributes.year,
+          odometer: (odometer.distance * 0.621371).toFixed(2) // Convert km to miles
+        };
       })
     );
     res.render('vehicles', { vehicles: vehicleDetails });
