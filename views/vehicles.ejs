@@ -2,24 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vehicle Information</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
     }
     th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+      padding: 8px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
     }
     th {
-      background-color: #f4f4f4;
+      background-color: #f2f2f2;
     }
   </style>
 </head>
@@ -32,6 +30,7 @@
         <th>Model</th>
         <th>Year</th>
         <th>Odometer (miles)</th>
+        <th>Location (Latitude, Longitude)</th>
       </tr>
     </thead>
     <tbody>
@@ -40,9 +39,10 @@
           <td><%= vehicle.make %></td>
           <td><%= vehicle.model %></td>
           <td><%= vehicle.year %></td>
-          <td><%= vehicle.odometer %></td>
+          <td><%= (vehicle.odometer * 0.621371).toFixed(2) %></td> <!-- Convert km to miles -->
+          <td><%= vehicle.location.latitude %>, <%= vehicle.location.longitude %></td>
         </tr>
-      <% }) %>
+      <% }); %>
     </tbody>
   </table>
 </body>

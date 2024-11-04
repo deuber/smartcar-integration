@@ -46,7 +46,7 @@ function writeTokens(tokens) {
 
 // Route to start the authorization flow
 app.get('/login', (req, res) => {
-  const authUrl = client.getAuthUrl(['read_vehicle_info', 'read_odometer']);
+  const authUrl = client.getAuthUrl(['read_vehicle_info', 'read_odometer', 'read_location']);
   res.redirect(authUrl);
 });
 
@@ -105,11 +105,16 @@ app.get('/vehicles', async (req, res) => {
         const vehicle = new smartcar.Vehicle(id, req.accessToken);
         const attributes = await vehicle.attributes();
         const odometer = await vehicle.odometer();
+        const location = await vehicle.location();
         return {
           make: attributes.make,
           model: attributes.model,
           year: attributes.year,
-          odometer: (odometer.distance * 0.621371).toFixed(2) // Convert km to miles
+          odometer: odometer.distance,
+          location: {
+            latitude: location.latitude,
+            longitude: location.longitude
+          }
         };
       })
     );
