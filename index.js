@@ -6,6 +6,10 @@ const path = require('path');
 const app = express();
 const port = 8000;
 
+// Set EJS as the templating engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // Define the path to the tokens file
 const tokensFilePath = path.join(__dirname, 'tokens.json');
 
@@ -103,7 +107,7 @@ app.get('/vehicles', async (req, res) => {
         return await vehicle.attributes(); // Correct method to fetch vehicle attributes
       })
     );
-    res.json(vehicleDetails);
+    res.render('vehicles', { vehicles: vehicleDetails });
   } catch (err) {
     console.error('Error fetching vehicles:', err.message);
     res.status(500).send('An error occurred while fetching vehicles.');
