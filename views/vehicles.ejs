@@ -18,27 +18,42 @@
   <meta charset="UTF-8">
   <title>Vehicle Locations</title>
   <style>
-    /* Map Styling */
-    #map {
-      height: 80vh;
-      width: 100%;
-    }
+    /* General Styling */
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
     }
-    h1, h2 {
+
+    /* Container Styling */
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 0;
+    }
+
+    h1 {
       text-align: center;
       margin: 20px 0;
+      color: #333;
+    }
+
+    h2 {
+      text-align: left; /* Aligned to the left */
+      margin: 10px 0 5px 0; /* Reduced bottom margin from 10px to 5px */
+      color: #333;
     }
 
     /* Table Styling */
     .vehicle-table {
-      width: 90%;
-      margin: 0 auto 20px auto;
+      width: 100%; /* Full width of the container */
+      margin: 0 0 20px 0; /* Reduced bottom margin from 30px to 20px */
       border-collapse: collapse;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
     }
     .vehicle-table th, .vehicle-table td {
       padding: 12px 15px;
@@ -60,42 +75,72 @@
       padding: 20px;
       color: #777;
     }
+
+    /* Map Styling */
+    .map-container {
+      padding: 10px 0; /* Reduced padding above and below from 20px to 10px */
+    }
+    #map {
+      height: 60vh; /* Adjust height as needed */
+      width: 100%; /* Full width of the container */
+      border: 1px solid #ddd; /* Optional: Add border for visual separation */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for depth */
+      margin-top: 10px; /* Reduced space above the map from 20px to 10px */
+      box-sizing: border-box; /* Ensures padding and borders are included in the width and height */
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .vehicle-table th, .vehicle-table td {
+        padding: 10px 12px;
+      }
+
+      #map {
+        height: 50vh;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Vehicle Locations</h1>
+  <div class="container">
+    <h1>My Vehicles</h1>
 
-  <!-- Vehicle Details Table -->
-  <h2>Vehicle Details</h2>
-  <table class="vehicle-table">
-    <thead>
-      <tr>
-        <th>Brand</th>
-        <th>Model</th>
-        <th>Year</th>
-        <th>Miles</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if (vehicles.length > 0) { %>
-        <% vehicles.forEach(vehicle => { %>
-          <tr>
-            <td><%= displayValue(vehicle.brand) %></td>
-            <td><%= displayValue(vehicle.model) %></td>
-            <td><%= displayValue(vehicle.year) %></td>
-            <td><%= displayValue(vehicle.miles) %></td>
-          </tr>
-        <% }); %>
-      <% } else { %>
+    <!-- Vehicle Details Table -->
+    <h2>Details</h2>
+    <table class="vehicle-table">
+      <thead>
         <tr>
-          <td colspan="4" class="no-data">No vehicle data available.</td>
+          <th>Brand</th>
+          <th>Model</th>
+          <th>Year</th>
+          <th>Miles</th>
         </tr>
-      <% } %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% if (vehicles.length > 0) { %>
+          <% vehicles.forEach(vehicle => { %>
+            <tr>
+              <td><%= displayValue(vehicle.brand) %></td>
+              <td><%= displayValue(vehicle.model) %></td>
+              <td><%= displayValue(vehicle.year) %></td>
+              <td><%= displayValue(vehicle.miles) %></td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="4" class="no-data">No vehicle data available.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
 
-  <!-- Google Map -->
-  <div id="map"></div>
+    <!-- Google Map -->
+    <!-- Locations -->
+    <h2>Locations</h2>
+    <div class="map-container">
+      <div id="map"></div>
+    </div>
+  </div>
 
   <!-- Embed vehicles data for JavaScript -->
   <script>

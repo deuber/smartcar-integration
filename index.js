@@ -210,10 +210,10 @@ async function fetchVehicleDetails(tokens) {
               console.log(`Distance: ${distance} ${unitSystem}`);
 
               if (unitSystem === 'imperial') {
-                miles = `${distance.toFixed(2)} mi`; // Already in miles
+                miles = `${Math.round(distance)} mi`; // Rounded to nearest integer
               } else if (unitSystem === 'metric') {
                 const milesValue = distance * 0.621371;
-                miles = `${milesValue.toFixed(2)} mi`; // Convert to miles
+                miles = `${Math.round(milesValue)} mi`; // Convert to miles and round
               } else {
                 console.warn(`Unknown unit system for vehicle ID ${id}: ${unitSystem}`);
               }
@@ -226,7 +226,7 @@ async function fetchVehicleDetails(tokens) {
               year: attributes.year,
               latitude: location.latitude,
               longitude: location.longitude,
-              miles: miles // Include miles
+              miles: miles // Include miles as integer
             };
           } catch (vehicleErr) {
             console.error(`Error fetching data for vehicle ID ${id} (${brand}):`, vehicleErr.message);
