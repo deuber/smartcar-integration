@@ -2,48 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vehicle Information</title>
+  <title>Vehicle Locations</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-    table {
+    #map {
+      height: 80vh;
       width: 100%;
-      border-collapse: collapse;
     }
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
-    th {
-      background-color: #f2f2f2;
+    h1 {
+      text-align: center;
+      margin: 20px 0;
     }
   </style>
 </head>
 <body>
-  <h1>Vehicle Information</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Make</th>
-        <th>Model</th>
-        <th>Year</th>
-        <th>Odometer (miles)</th>
-        <th>Location (Latitude, Longitude)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% vehicles.forEach(vehicle => { %>
-        <tr>
-          <td><%= vehicle.make %></td>
-          <td><%= vehicle.model %></td>
-          <td><%= vehicle.year %></td>
-          <td><%= (vehicle.odometer * 0.621371).toFixed(2) %></td> <!-- Convert km to miles -->
-          <td><%= vehicle.location.latitude %>, <%= vehicle.location.longitude %></td>
-        </tr>
-      <% }); %>
-    </tbody>
-  </table>
+  <h1>Vehicle Locations</h1>
+  <div id="map"></div>
+
+  <script>
+    // Log the vehicles data received from the server
+    console.log('Vehicles Data:', <%- JSON.stringify(vehicles) %>);
+
+    function initMap() {
+      // Initialize the map centered on the USA
+      const map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 4,
+        center: { lat: 39.8283, lng: -98.5795 } // Center of the USA
+      });
+
+      const vehicles = <%- JSON.stringify(vehicles) %>;
+      console.log('Vehicles Array:', vehicles);
+
+      if (vehicles.length === 0) {
+        console.warn('No vehicles to display.');
+        // Optionally, display a message on the map
+        const infoWindow = new google.maps.InfoWindow({
+          content: 'No vehicle locations available.'
+        });
+        infoWindow.setPosition({ lat: 39.8283, lng: -98.5795 });
+        infoWindow.open(map);
+        return;
+      }
+
+      vehicles.forEach(vehicle => {
+        if (vehicle.latitude != null && vehicle.longitude != null) {
+          const marker = new google.maps.Marker({
+            position: { lat: vehicle.latitude, lng: vehicle.longitude },
+            map: map,
+            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`
+          });
+
+          const infoWindow = new google.maps.InfoWindow({
+            content: `<strong>${vehicle.year} ${vehicle.make} ${vehicle.model}</strong>`
+          });
+
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+          });
+        } else {
+          console.warn(`Invalid location for vehicle: ${vehicle.year} ${vehicle.make} ${vehicle.model}`);
+        }
+      });
+    }
+
+    // Handle Google Maps API loading errors
+    function gm_authFailure() { 
+      alert('Google Maps authentication failed. Please check your API key.');
+    }
+
+    // Attach the auth failure handler
+    window.gm_authFailure = gm_authFailure;
+  </script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=<%= googleApiKey %>&callback=initMap">
+  </script>
 </body>
 </html>
