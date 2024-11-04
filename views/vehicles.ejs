@@ -1,9 +1,24 @@
+<!-- views/vehicles.ejs -->
+
+<%
+  /**
+   * Helper function to display a value or a default if undefined or null.
+   * @param {any} value - The value to display.
+   * @param {string} defaultValue - The default value to display if `value` is undefined or null.
+   * @returns {any} - The original value or the default value.
+   */
+  function displayValue(value, defaultValue = 'N/A') {
+    return (value !== undefined && value !== null) ? value : defaultValue;
+  }
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Vehicle Locations</title>
   <style>
+    /* Map Styling */
     #map {
       height: 80vh;
       width: 100%;
@@ -13,25 +28,87 @@
       margin: 0;
       padding: 0;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
       margin: 20px 0;
+    }
+
+    /* Table Styling */
+    .vehicle-table {
+      width: 90%;
+      margin: 0 auto 20px auto;
+      border-collapse: collapse;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .vehicle-table th, .vehicle-table td {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    .vehicle-table th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+    }
+    .vehicle-table tbody tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+    .vehicle-table tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      color: #777;
     }
   </style>
 </head>
 <body>
   <h1>Vehicle Locations</h1>
+
+  <!-- Vehicle Details Table -->
+  <h2>Vehicle Details</h2>
+  <table class="vehicle-table">
+    <thead>
+      <tr>
+        <th>Brand</th>
+        <th>Model</th>
+        <th>Year</th>
+        <th>Miles</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (vehicles.length > 0) { %>
+        <% vehicles.forEach(vehicle => { %>
+          <tr>
+            <td><%= displayValue(vehicle.brand) %></td>
+            <td><%= displayValue(vehicle.model) %></td>
+            <td><%= displayValue(vehicle.year) %></td>
+            <td><%= displayValue(vehicle.miles) %></td>
+          </tr>
+        <% }); %>
+      <% } else { %>
+        <tr>
+          <td colspan="4" class="no-data">No vehicle data available.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+  <!-- Google Map -->
   <div id="map"></div>
 
+  <!-- Embed vehicles data for JavaScript -->
   <script>
     // Log the vehicles data received from the server
     console.log('Vehicles Data:', <%- JSON.stringify(vehicles) %>);
+  </script>
 
+  <script>
     function initMap() {
       // Initialize the map without a specific center
       const map = new google.maps.Map(document.getElementById('map'), {
         zoom: 4, // Initial zoom, will be adjusted later
-        center: { lat: 39.8283, lng: -98.5795 } // Temporary center
+        center: { lat: 39.8283, lng: -98.5795 } // Temporary center (Center of USA)
       });
 
       const vehicles = <%- JSON.stringify(vehicles) %>;
@@ -55,9 +132,10 @@
         if (vehicle.latitude != null && vehicle.longitude != null) {
           // Define different colors or icons based on brand
           let iconUrl = '';
-          if (vehicle.brand === 'TOYOTA') {
+          const brandUpper = vehicle.brand.toUpperCase();
+          if (brandUpper === 'TOYOTA') {
             iconUrl = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
-          } else if (vehicle.brand === 'SUBARU') {
+          } else if (brandUpper === 'SUBARU') {
             iconUrl = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
           } else {
             iconUrl = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
@@ -68,12 +146,12 @@
           const marker = new google.maps.Marker({
             position: position,
             map: map,
-            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+            title: `${vehicle.year} ${vehicle.brand} ${vehicle.model}`,
             icon: iconUrl // Set the icon based on brand
           });
 
           const infoWindow = new google.maps.InfoWindow({
-            content: `<strong>${vehicle.year} ${vehicle.make} ${vehicle.model}</strong><br>Brand: ${vehicle.brand}`
+            content: `<strong>${vehicle.year} ${vehicle.brand} ${vehicle.model}</strong><br>Brand: ${vehicle.brand}<br>Miles: ${displayValue(vehicle.miles)}`
           });
 
           marker.addListener('click', () => {
@@ -83,7 +161,7 @@
           // Extend the bounds to include this marker's position
           bounds.extend(position);
         } else {
-          console.warn(`Invalid location for vehicle: ${vehicle.year} ${vehicle.make} ${vehicle.model}`);
+          console.warn(`Invalid location for vehicle: ${vehicle.year} ${vehicle.brand} ${vehicle.model}`);
         }
       });
 
@@ -97,6 +175,14 @@
       }
     }
 
+    /**
+     * Helper function to display a value or a default if undefined or null.
+     * Accessible in the global scope for use in the InfoWindow content.
+     */
+    function displayValue(value, defaultValue = 'N/A') {
+      return (value !== undefined && value !== null) ? value : defaultValue;
+    }
+
     // Handle Google Maps API loading errors
     function gm_authFailure() { 
       alert('Google Maps authentication failed. Please check your API key.');
@@ -105,6 +191,8 @@
     // Attach the auth failure handler
     window.gm_authFailure = gm_authFailure;
   </script>
+
+  <!-- Google Maps API Script with Callback -->
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=<%= googleApiKey %>&callback=initMap">
   </script>

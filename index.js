@@ -1,3 +1,5 @@
+// index.js
+
 require('dotenv').config();
 const express = require('express');
 const smartcar = require('smartcar');
@@ -161,7 +163,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Function to fetch vehicle details from Smartcar APIs
+/**
+ * Function to fetch vehicle details from Smartcar APIs
+ * Includes fetching odometer (miles) data.
+ * @param {Array} tokens - Array of token objects.
+ * @returns {Array} - Array of vehicle details objects.
+ */
 async function fetchVehicleDetails(tokens) {
   let allVehicleDetails = [];
 
@@ -186,15 +193,40 @@ async function fetchVehicleDetails(tokens) {
         vehicles.map(async (id) => {
           try {
             const vehicle = new smartcar.Vehicle(id, accessToken);
+            
+            // Fetch attributes
             const attributes = await vehicle.attributes();
+            
+            // Fetch location
             const location = await vehicle.location();
+            
+            // Fetch odometer (miles)
+            const odometerData = await vehicle.odometer();
+            console.log(`Odometer Data for vehicle ID ${id}:`, JSON.stringify(odometerData, null, 2));
+            let miles = 'N/A';
+            if (odometerData && odometerData.distance !== undefined && odometerData.distance !== null) {
+              const distance = odometerData.distance;
+              const unitSystem = odometerData.meta && odometerData.meta.unitSystem ? odometerData.meta.unitSystem : null;
+              console.log(`Distance: ${distance} ${unitSystem}`);
+
+              if (unitSystem === 'imperial') {
+                miles = `${distance.toFixed(2)} mi`; // Already in miles
+              } else if (unitSystem === 'metric') {
+                const milesValue = distance * 0.621371;
+                miles = `${milesValue.toFixed(2)} mi`; // Convert to miles
+              } else {
+                console.warn(`Unknown unit system for vehicle ID ${id}: ${unitSystem}`);
+              }
+            }
+
             return {
               brand: brand.toUpperCase(),
               make: attributes.make,
               model: attributes.model,
               year: attributes.year,
               latitude: location.latitude,
-              longitude: location.longitude
+              longitude: location.longitude,
+              miles: miles // Include miles
             };
           } catch (vehicleErr) {
             console.error(`Error fetching data for vehicle ID ${id} (${brand}):`, vehicleErr.message);
@@ -265,7 +297,10 @@ app.get('/', (req, res) => {
   `);
 });
 
-// Function to periodically refresh cached vehicle data
+/**
+ * Function to periodically refresh cached vehicle data
+ * Fetches the latest vehicle details and updates the cache.
+ */
 async function refreshCachedVehicleData() {
   try {
     console.log('Refreshing cached vehicle data...');

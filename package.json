@@ -8,7 +8,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Smartcar Integration ====================",
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8",
     "axios": "^1.7.7",
