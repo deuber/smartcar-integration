@@ -50,14 +50,25 @@
 
       vehicles.forEach(vehicle => {
         if (vehicle.latitude != null && vehicle.longitude != null) {
+          // Define different colors or icons based on brand
+          let iconUrl = '';
+          if (vehicle.brand === 'TOYOTA') {
+            iconUrl = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+          } else if (vehicle.brand === 'SUBARU') {
+            iconUrl = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+          } else {
+            iconUrl = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
+          }
+
           const marker = new google.maps.Marker({
             position: { lat: vehicle.latitude, lng: vehicle.longitude },
             map: map,
-            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`
+            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+            icon: iconUrl // Set the icon based on brand
           });
 
           const infoWindow = new google.maps.InfoWindow({
-            content: `<strong>${vehicle.year} ${vehicle.make} ${vehicle.model}</strong>`
+            content: `<strong>${vehicle.year} ${vehicle.make} ${vehicle.model}</strong><br>Brand: ${vehicle.brand}`
           });
 
           marker.addListener('click', () => {
