@@ -4,7 +4,7 @@ Smartcar Integration with Google Maps
 
 This project demonstrates how to integrate the Smartcar API into a Node.js application, enabling users to authorize access to their vehicles, retrieve vehicle information, and display their locations on a Google Map. The application is designed to work with vehicles compatible with Smartcar, including Subaru and Toyota models, but it should also support any vehicle available through Smartcar's API.
 
-![Demo Image](https://raw.githubusercontent.com/deuber/smartcar-integration/main/DemoImage.png)
+![Demo Image](https://raw.githubusercontent.com/deuber/smartcar-integration/main/DemoImage2.png)
 
 
 Motivation
