@@ -14,7 +14,7 @@ Edit Mode:
 Motivation
 ----------
 
-This app was created to fill a gap left by services like DIMO and Fleetio, which don’t provide exactly the functionality needed or are not free. Additionally, building this app allowed me to explore API integrations, which is one of my passions.
+This app was created to fill a gap left by services like DIMO and Fleetio, which don’t provide exactly the functionality needed or are not free. Additionally, building this app allowed me to explore API integrations and build solutions.
 
 Features
 --------
