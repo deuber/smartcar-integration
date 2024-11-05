@@ -11,6 +11,8 @@ env/
 env.bak/
 venv.bak/
 
+notes/
+
 tokens.json
 
 # Environment variables
