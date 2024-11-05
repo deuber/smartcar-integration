@@ -19,18 +19,13 @@ function toggleNotes(vehicleId) {
  * @param {string} vehicleId - The unique ID of the vehicle.
  */
 async function addNote(event, vehicleId) {
-  event.preventDefault(); // Prevent the default form submission
+  event.preventDefault();
 
   const form = event.target;
-  const dateInput = form.querySelector('input[name="date"]');
-  const noteInput = form.querySelector('input[name="note"]');
-  const odometerInput = form.querySelector('input[name="odometer"]');
+  const date = form.querySelector('input[name="date"]').value;
+  const note = form.querySelector('input[name="note"]').value.trim();
+  const odometer = form.querySelector('input[name="odometer"]').value.trim();
 
-  const date = dateInput.value;
-  const note = noteInput.value.trim();
-  const odometer = odometerInput.value.trim();
-
-  // Basic Frontend Validation
   if (!date || !note || !odometer) {
     alert('Please provide date, note, and odometer reading.');
     return;
@@ -50,20 +45,43 @@ async function addNote(event, vehicleId) {
       body: JSON.stringify({ date, note, odometer }),
     });
 
-    const result = await response.json();
-
     if (response.ok) {
       alert('Note added successfully.');
-      // Reload notes section to display the new note
       await loadNotes(vehicleId);
-      // Reset the form
       form.reset();
     } else {
+      const result = await response.json();
       alert(`Error: ${result.error}`);
     }
   } catch (err) {
     console.error('Error adding note:', err);
     alert('An error occurred while adding the note.');
+  }
+}
+
+/**
+ * Handle deleting a note via AJAX.
+ * @param {string} vehicleId - The unique ID of the vehicle.
+ * @param {number} noteIndex - The index of the note to delete.
+ */
+async function deleteNote(vehicleId, noteIndex) {
+  if (!confirm('Are you sure you want to delete this note?')) return;
+
+  try {
+    const response = await fetch(`/notes/${vehicleId}/${noteIndex}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      alert('Note deleted successfully.');
+      await loadNotes(vehicleId);
+    } else {
+      const result = await response.json();
+      alert(`Error: ${result.error}`);
+    }
+  } catch (err) {
+    console.error('Error deleting note:', err);
+    alert('An error occurred while deleting the note.');
   }
 }
 
@@ -80,12 +98,13 @@ async function loadNotes(vehicleId) {
     let notesHTML = '<h4>Service Notes</h4>';
 
     if (notes.length > 0) {
-      notes.forEach(note => {
+      notes.forEach((note, index) => {
         notesHTML += `
           <div class="note-item">
             <strong>Date:</strong> ${note.date}<br>
             <strong>Odometer:</strong> ${note.odometer} mi<br>
             <strong>Note:</strong> ${note.note}
+            <button class="btn btn-danger btn-sm mt-2" onclick="deleteNote('${vehicleId}', ${index})">Delete</button>
           </div>
         `;
       });
@@ -94,7 +113,6 @@ async function loadNotes(vehicleId) {
     }
 
     notesHTML += `
-      <!-- Add Note Form -->
       <form class="mt-3" onsubmit="addNote(event, '${vehicleId}')">
         <div class="mb-3">
           <label for="date-${vehicleId}" class="form-label">Date of Service</label>
@@ -119,7 +137,7 @@ async function loadNotes(vehicleId) {
   }
 }
 
-/* Attach functions to the global window object */
 window.toggleNotes = toggleNotes;
 window.addNote = addNote;
+window.deleteNote = deleteNote;
 window.loadNotes = loadNotes;
